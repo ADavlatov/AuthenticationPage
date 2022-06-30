@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home Page</title>
+    <style>
+        *{
+            max-width: 1170;
+            margin: 0 auto;
+            box-sizing: border-box;
+            display: grid;
+            font-family: sans-serif;
+        }
+        head{
+            display: none;
+        }
+        script{
+            display: none;
+        }
+        button{
+            padding: 0;
+            border: 2px solid #b6b6b6;
+            color: inherit;
+            background-color: transparent;
+            padding: 10px 30px;
+            margin: 10px;
+        }
+        button:hover{
+            background-color: #9f9f9f;
+        }
+        .nav_block{
+            margin-top: 20%;
+            border: 2px solid #b8b8b8;
+            padding: 20px 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav_block">
+        <form method="get" action="IsAuth">
+            <button>
+                <a id="check-auth">Check authentication</a>
+            </button>
+        </form>
+        <form method="get" action="login">
+            <button>
+                <a>Log In</a>
+            </button>
+        </form>
+        <form method="get" action="signin">
+            <button>
+                <a>Sign In</a>
+            </button>
+        </form>
+    </div>
+</body>
+</html>
