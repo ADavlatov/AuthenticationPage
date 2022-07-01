@@ -19,11 +19,20 @@ var app = builder.Build();
 app.UseAuthentication();
 app.UseAuthorization();
 
+string username = null;
 
 app.MapGet("/",  async (context) =>
 {
     context.Response.ContentType = "text/html; charset=utf-8";
     await context.Response.SendFileAsync("wwwroot/index.html");
+});
+app.MapPost("/", () =>
+{
+    var response = new
+    {
+        name = username
+    };
+    return Results.Json(response);
 });
 app.MapGet("/isauth", async (context) =>
 {
@@ -54,6 +63,7 @@ app.MapPost("/log-in", async (string? returnUrl, HttpContext context) =>
     if (!form.ContainsKey("login") || !form.ContainsKey("password"))
         return Results.BadRequest("Логин или пароль не установлены");
 
+    username = form["login"];
     string login = form["login"];
     string password = form["password"];
 
@@ -79,4 +89,4 @@ app.MapPost("/log-out", async (string? returnUrl, HttpContext context) =>
     }
 });
 
-    app.Run();
+app.Run();

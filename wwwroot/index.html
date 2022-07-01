@@ -37,11 +37,7 @@
 </head>
 <body>
     <div class="nav_block">
-        <form method="get" action="IsAuth">
-            <button>
-                <a id="check-auth">Check authentication</a>
-            </button>
-        </form>
+        <p id="greeting">Добро пожаловать</p>
         <form method="get" action="log-in">
             <button>
                 <a>Log In</a>
@@ -58,5 +54,25 @@
             </button>
         </form>
     </div>
+    <form method="post" action="info">
+        <button>
+            <a id="check-info">Check info</a>
+        </button>
+    </form>
 </body>
+<script>
+    document.getElementById("greeting").innerHTML = "Добро пожаловать, " + data;
+    const response = await fetch("/", {
+        method: "GET",
+        headers: {
+            "Accept": "application/json"
+        }
+    })
+    if (response.ok === true) {
+        const data = await response.json();
+        alert(data.message);
+    }
+    else
+        console.log("Status: ", response.status);
+</script>
 </html>
