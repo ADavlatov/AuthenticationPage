@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home Page</title>
+    <style>
+        *{
+            max-width: 1170;
+            margin: 0 auto;
+            box-sizing: border-box;
+            display: grid;
+            font-family: sans-serif;
+        }
+        head{
+            display: none;
+        }
+        script{
+            display: none;
+        }
+        button{
+            padding: 0;
+            border: 2px solid #b6b6b6;
+            color: inherit;
+            background-color: transparent;
+            padding: 10px 30px;
+            margin: 10px;
+        }
+        button:hover{
+            background-color: #9f9f9f;
+        }
+        .user_info{
+            margin-top: 20%;
+            border: 2px solid #b8b8b8;
+            padding: 20px 40px;
+        }
+        p{
+           margin-bottom: 10px; 
+        }
+    </style>
+</head>
+<body>
+<div class="user_info">
+    <p id="user_login">Ваш логин: user</p>
+    <p id="user_password">Ваш пароль: password</p>
+    <form method="post" action="change-password">
+        <button>
+            <a>Сменить пароль</a>
+        </button>
+    </form>
+</div>
+</body>
+<script>
+    
+</script>
+</html>
