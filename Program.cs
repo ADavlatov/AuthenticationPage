@@ -32,15 +32,10 @@ app.Map("/info", async (context) =>
 });
 app.MapGet("/isauth", async (context) =>
 {
-    context.Response.ContentType = "text/html; charset=utf-8";
-
     if (context.User.Identity.IsAuthenticated)
     {
-        await context.Response.WriteAsync("Hello");
-    }
-    else if (!context.User.Identity.IsAuthenticated)
-    {
-        await context.Response.WriteAsync("Error 401");
+        string isAuth = context.Request.Cookies["isAuth"];
+        await context.Response.WriteAsJsonAsync(isAuth);
     }
 });
 app.MapGet("/log-in", async (context) =>
@@ -64,6 +59,7 @@ app.MapPost("/log-in", async (string? returnUrl, HttpContext context) =>
     string password = form["password"];
 
     context.Response.Cookies.Append("username", username);
+    context.Response.Cookies.Append("isAuth", "auth");
 
     User? user = users.FirstOrDefault(user => user.Login == login && user.Password == password);
     if (user == null)
