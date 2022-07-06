@@ -40,8 +40,10 @@
 </head>
 <body>
 <div class="user_info">
-    <p id="user_login">Ваш логин: user</p>
-    <p id="user_password">Ваш пароль: password</p>
+    <form name="userInfo">
+        <p name= "login" id="user_login">Ваш логин: user</p>
+        <p name="password" id="user_password">Ваш пароль: password</p>
+    </form>
     <form method="post" action="change-password">
         <button>
             <a>Сменить пароль</a>
@@ -50,6 +52,23 @@
 </div>
 </body>
 <script>
+    async function getUser() {
+        const response = await fetch("/info", {
+            method: "GET",
+            headers: { "Accept": "application/json" }
+        });
+        if (response.ok === true) {
+            const info = await response.json();
+            document.getElementById("user_login").innerHTML = `Ваш логин: ${info.toString()}`;
+        }
+        else {
+            console.log(ошибка);
+        }
+    }
+    //let info = fetch("/info");
+    //let login = info.toString();
+    //console.log(info.toString());
     
+    getUser();
 </script>
 </html>

@@ -19,20 +19,16 @@ var app = builder.Build();
 app.UseAuthentication();
 app.UseAuthorization();
 
-string username = null;
-
 app.MapGet("/",  async (context) =>
 {
     context.Response.ContentType = "text/html; charset=utf-8";
     await context.Response.SendFileAsync("wwwroot/index.html");
 });
-app.MapPost("/", () =>
+
+app.Map("/info", async (context) =>
 {
-    var response = new
-    {
-        name = username
-    };
-    return Results.Json(response);
+    context.Response.ContentType = "text/html; charset=utf-8";
+    await context.Response.SendFileAsync("wwwroot/user_info.html");
 });
 app.MapGet("/isauth", async (context) =>
 {
@@ -52,7 +48,7 @@ app.MapGet("/log-in", async (context) =>
     context.Response.ContentType = "text/html; charset=utf-8";
     await context.Response.SendFileAsync("wwwroot/login_form.html");
 });
-/*app.MapGet("/sign-in", async (context) =>
+/*app.MapGet("/sign-in", async (context) =>aa
 {
     context.Response.ContentType = "text/html; charset=utf-8";
     await context.Response.SendFileAsync("wwwroot/signin_form.html");
@@ -63,9 +59,11 @@ app.MapPost("/log-in", async (string? returnUrl, HttpContext context) =>
     if (!form.ContainsKey("login") || !form.ContainsKey("password"))
         return Results.BadRequest("Логин или пароль не установлены");
 
-    username = form["login"];
+    string username = form["login"];
     string login = form["login"];
     string password = form["password"];
+
+    context.Response.Cookies.Append("username", username);
 
     User? user = users.FirstOrDefault(user => user.Login == login && user.Password == password);
     if (user == null)
@@ -81,12 +79,19 @@ app.MapPost("/log-out", async (string? returnUrl, HttpContext context) =>
     if (context.User.Identity.IsAuthenticated)
     {
         await context.SignOutAsync("Cookies");
+        context.Response.Cookies.Delete("username");
         return Results.Redirect(returnUrl??"/");
     }
     else
     {
         return Results.Redirect(returnUrl??"/");
     }
+});
+
+app.MapGet("/info", async (context) =>
+{
+    string name = context.Request.Cookies["username"];
+    await context.Response.WriteAsJsonAsync(name);
 });
 
 app.Run();
