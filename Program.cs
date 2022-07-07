@@ -16,14 +16,11 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
 app.UseAuthentication();
 app.UseAuthorization();
-
-app.MapGet("/",  async (context) =>
-{
-    context.Response.ContentType = "text/html; charset=utf-8";
-    await context.Response.SendFileAsync("wwwroot/index.html");
-});
 
 app.Map("/info", async (context) =>
 {

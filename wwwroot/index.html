@@ -36,11 +36,14 @@
         .info_btn{
             display: none;
         }
+        .greeting{
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div class="nav_block">
-        <p id="greeting">Добро пожаловать</p>
+        <p class="greeting" id="greeting">Добро пожаловать</p>
         <form method="get" action="log-in">
             <button>
                 <a>Log In</a>
@@ -79,6 +82,21 @@
             console.log("ошибка");
         }
     }
+    async function getUser() {
+        const response = await fetch("/info", {
+            method: "GET",
+            headers: { "Accept": "application/json" }
+        });
+        if (response.ok === true) {
+            const name = await response.json();
+            document.getElementById("greeting").innerHTML = `Добро пожаловать: ${name.toString()}`;
+            document.getElementById("greeting").style.display = "unset";
+        }
+        else {
+            console.log(ошибка);
+        }
+    }
+    getUser();
     isAuth();
 </script>
 </html>
