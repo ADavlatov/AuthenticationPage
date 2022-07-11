@@ -49,6 +49,11 @@ app.Map("/info", async (context) =>
     context.Response.ContentType = "text/html; charset=utf-8";
     await context.Response.SendFileAsync("wwwroot/user_info.html");
 });
+app.Map("/change-password", async (context) =>
+{
+    context.Response.ContentType = "text/html; charset=utf-8";
+    await context.Response.SendFileAsync("wwwroot/change_password.html");
+});
 app.Map("/log-out", async (string? returnUrl, HttpContext context) =>
 {
     context.Response.Cookies.Delete("username");
@@ -105,6 +110,22 @@ app.MapPost("/sign-in", (string? returnUrl, HttpContext context) =>
     
     users.Add(new User(login, password));
 
+    return Results.Redirect(returnUrl??"/");
+});
+app.MapPost("/change", (string? returnUrl, HttpContext context) =>
+{
+    var form = context.Request.Form;
+
+    string login = context.Request.Cookies["username"]!;
+    string oldPassword = form["oldPassword"]!;
+    string newPassword = form["newPassword"]!;
+
+    User? user = users.FirstOrDefault(user => user.Login == login && user.Password == oldPassword);
+    if (user == null)
+        return Results.BadRequest("Неверный пароль");
+
+    user.Password = newPassword;
+    
     return Results.Redirect(returnUrl??"/");
 });
 
