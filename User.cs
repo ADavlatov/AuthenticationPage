@@ -1,5 +1,6 @@
-namespace AuthenticationPage;
+using Microsoft.EntityFrameworkCore;
 
+namespace AuthenticationPage;
 public class User
 {
     public User(string login, string password)
@@ -8,6 +9,6 @@ public class User
         Password = password;
     }
 
-    public string Login { get; set; }
-    public string Password { get; set; }
+    public string Login { get; set; } = "";
+    public string Password { get; set; } = "";
 }

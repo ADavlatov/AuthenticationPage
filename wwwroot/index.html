@@ -33,10 +33,19 @@
             border: 2px solid #b8b8b8;
             padding: 20px 40px;
         }
-        .info_btn{
+        .greeting{
             display: none;
         }
-        .greeting{
+        .log-in_btn{
+            display: unset;
+        }
+        .sign-in_btn{
+            display: unset;
+        }
+        .log-out_btn{
+            display: none;
+        }
+        .info_btn{
             display: none;
         }
     </style>
@@ -44,17 +53,17 @@
 <body>
     <div class="nav_block">
         <p class="greeting" id="greeting">Добро пожаловать</p>
-        <form method="get" action="log-in">
+        <form class="log-in_btn" method="get" action="log-in" id="log-inButton">
             <button>
                 <a>Log In</a>
             </button>
         </form>
-        <form method="get" action="sign-in">
+        <form class="sign-in_btn" method="get" action="sign-in" id="sign-inButton">
             <button>
                 <a>Sign In</a>
             </button>
         </form>
-        <form method="post" action="log-out">
+        <form class="log-out_btn" method="post" action="log-out" id="log-outButton">
             <button>
                 <a>Log Out</a>
             </button>
@@ -75,11 +84,11 @@
         if (response.ok === true) {
             const resp = await response.json();
             if (resp == "auth"){
+                document.getElementById("log-inButton").style.display = "none";
+                document.getElementById("sign-inButton").style.display = "none";
+                document.getElementById("log-outButton").style.display = "unset";
                 document.getElementById("infoButton").style.display = "unset";
             }
-        }
-        else {
-            console.log("ошибка");
         }
     }
     async function getUser() {
@@ -91,9 +100,6 @@
             const name = await response.json();
             document.getElementById("greeting").innerHTML = `Добро пожаловать: ${name.toString()}`;
             document.getElementById("greeting").style.display = "unset";
-        }
-        else {
-            console.log(ошибка);
         }
     }
     getUser();

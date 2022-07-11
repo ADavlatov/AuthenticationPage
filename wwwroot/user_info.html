@@ -61,9 +61,6 @@
             const info = await response.json();
             document.getElementById("user_login").innerHTML = `Ваш логин: ${info.toString()}`;
         }
-        else {
-            console.log(ошибка);
-        }
     }
     getUser();
 </script>
