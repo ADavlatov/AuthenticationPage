@@ -5,7 +5,7 @@
     <title>Home Page</title>
     <style>
         *{
-            max-width: 1170;
+            max-width: 1170px;
             margin: 0 auto;
             box-sizing: border-box;
             display: grid;
@@ -18,7 +18,6 @@
             display: none;
         }
         button{
-            padding: 0;
             border: 2px solid #b6b6b6;
             color: inherit;
             background-color: transparent;
@@ -53,22 +52,22 @@
 <body>
     <div class="nav_block">
         <p class="greeting" id="greeting">Добро пожаловать</p>
-        <form class="log-in_btn" method="get" action="log-in" id="log-inButton">
+        <form class="log-in_btn" method="get" action="/log-in" id="log-inButton">
             <button>
                 <a>Log In</a>
             </button>
         </form>
-        <form class="sign-in_btn" method="get" action="sign-in" id="sign-inButton">
+        <form class="sign-in_btn" method="get" action="/sign-in" id="sign-inButton">
             <button>
                 <a>Sign In</a>
             </button>
         </form>
-        <form class="log-out_btn" method="post" action="log-out" id="log-outButton">
+        <form class="log-out_btn" method="post" action="/log-out" id="log-outButton">
             <button>
                 <a>Log Out</a>
             </button>
         </form>
-        <form class="info_btn" method="post" action="info" id="infoButton">
+        <form class="info_btn" method="post" action="/info" id="infoButton">
             <button>
                 <a id="check-info">Check info</a>
             </button>
@@ -76,33 +75,30 @@
     </div>
 </body>
 <script>
-    async function isAuth(){
-        const response = await fetch("/isauth", {
+    async function getUser() {
+        const isAuth = await fetch("/authinfo", {
             method: "GET",
             headers: { "Accept": "application/json" }
         });
-        if (response.ok === true) {
-            const resp = await response.json();
-            if (resp == "auth"){
+        if (isAuth.ok === true) {
+            const resp = await isAuth.json();
+            if (resp === "auth"){
                 document.getElementById("log-inButton").style.display = "none";
                 document.getElementById("sign-inButton").style.display = "none";
                 document.getElementById("log-outButton").style.display = "unset";
                 document.getElementById("infoButton").style.display = "unset";
             }
         }
-    }
-    async function getUser() {
-        const response = await fetch("/info", {
+        const greeting = await fetch("/userinfo", {
             method: "GET",
             headers: { "Accept": "application/json" }
         });
-        if (response.ok === true) {
-            const name = await response.json();
+        if (greeting.ok === true) {
+            const name = await greeting.json();
             document.getElementById("greeting").innerHTML = `Добро пожаловать: ${name.toString()}`;
             document.getElementById("greeting").style.display = "unset";
         }
     }
     getUser();
-    isAuth();
 </script>
 </html>

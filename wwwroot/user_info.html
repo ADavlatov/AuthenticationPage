@@ -5,7 +5,7 @@
     <title>Home Page</title>
     <style>
         *{
-            max-width: 1170;
+            max-width: 1170px;
             margin: 0 auto;
             box-sizing: border-box;
             display: grid;
@@ -18,7 +18,6 @@
             display: none;
         }
         button{
-            padding: 0;
             border: 2px solid #b6b6b6;
             color: inherit;
             background-color: transparent;
@@ -41,10 +40,9 @@
 <body>
 <div class="user_info">
     <form name="userInfo">
-        <p name= "login" id="user_login">Ваш логин: user</p>
-        <p name="password" id="user_password">Ваш пароль: password</p>
+        <p id="user_login">Ваш логин: user</p>
     </form>
-    <form method="post" action="change-password">
+    <form method="post" action="/change-password">
         <button>
             <a>Сменить пароль</a>
         </button>
@@ -53,7 +51,7 @@
 </body>
 <script>
     async function getUser() {
-        const response = await fetch("/info", {
+        const response = await fetch("/userinfo", {
             method: "GET",
             headers: { "Accept": "application/json" }
         });

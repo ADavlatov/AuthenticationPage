@@ -21,27 +21,47 @@ app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.Map("/users", async (context) =>
+app.Map("/userinfo", async (context) =>
 {
-    await context.Response.WriteAsync(users.Count.ToString());
+    string? name = context.Request.Cookies["username"];
+    await context.Response.WriteAsJsonAsync(name);
 });
-app.Map("/isauth", async (context) =>
+app.Map("/authinfo", async (context) =>
 {
-    if (context.User.Identity.IsAuthenticated)
+    if (context.User.Identity != null && context.User.Identity.IsAuthenticated)
     {
-        string isAuth = context.Request.Cookies["isAuth"];
+        string? isAuth = context.Request.Cookies["isAuth"];
         await context.Response.WriteAsJsonAsync(isAuth);
     }
+});
+app.Map("/log-in", async (context) =>
+{
+    context.Response.ContentType = "text/html; charset=utf-8";
+    await context.Response.SendFileAsync("wwwroot/login_form.html");
+});
+app.Map("/sign-in", async (context) =>
+{
+    context.Response.ContentType = "text/html; charset=utf-8";
+    await context.Response.SendFileAsync("wwwroot/signin_form.html");
 });
 app.Map("/info", async (context) =>
 {
     context.Response.ContentType = "text/html; charset=utf-8";
     await context.Response.SendFileAsync("wwwroot/user_info.html");
 });
-app.Map("/log-in", async (context) =>
+app.Map("/log-out", async (string? returnUrl, HttpContext context) =>
 {
-    context.Response.ContentType = "text/html; charset=utf-8";
-    await context.Response.SendFileAsync("wwwroot/login_form.html");
+    context.Response.Cookies.Delete("username");
+    context.Response.Cookies.Delete("isAuth");
+    if (context.User.Identity != null && context.User.Identity.IsAuthenticated)
+    {
+        await context.SignOutAsync("Cookies");
+        return Results.Redirect(returnUrl??"/");
+    }
+    else
+    {
+        return Results.Redirect(returnUrl??"/");
+    }
 });
 app.MapPost("/log-in", async (string? returnUrl, HttpContext context) =>
 {
@@ -49,8 +69,8 @@ app.MapPost("/log-in", async (string? returnUrl, HttpContext context) =>
     if (!form.ContainsKey("login") || !form.ContainsKey("password"))
         return Results.BadRequest("Логин или пароль не установлены");
     
-    string login = form["login"];
-    string password = form["password"];
+    string login = form["login"]!;
+    string password = form["password"]!;
 
     User? user = users.FirstOrDefault(user => user.Login == login && user.Password == password);
     if (user == null)
@@ -60,7 +80,7 @@ app.MapPost("/log-in", async (string? returnUrl, HttpContext context) =>
     ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, "Cookies");
     await context.SignInAsync("Cookies", new ClaimsPrincipal(claimsIdentity));
     
-    if (!(context.User.Identity.IsAuthenticated))
+    if (context.User.Identity != null && !(context.User.Identity.IsAuthenticated))
     {
         context.Response.Cookies.Append("username", login);
         context.Response.Cookies.Append("isAuth", "auth");  
@@ -68,17 +88,12 @@ app.MapPost("/log-in", async (string? returnUrl, HttpContext context) =>
     
     return Results.Redirect(returnUrl??"/");
 });
-app.Map("/sign-in", async (context) =>
-{
-    context.Response.ContentType = "text/html; charset=utf-8";
-    await context.Response.SendFileAsync("wwwroot/signin_form.html");
-});
 app.MapPost("/sign-in", (string? returnUrl, HttpContext context) =>
 {
     var form = context.Request.Form;
     
-    string login = form["login"];
-    string password = form["password"];
+    string login = form["login"]!;
+    string password = form["password"]!;
 
     for (int i = 0; i < users.Count; i++)
     {
@@ -91,25 +106,6 @@ app.MapPost("/sign-in", (string? returnUrl, HttpContext context) =>
     users.Add(new User(login, password));
 
     return Results.Redirect(returnUrl??"/");
-});
-app.MapPost("/log-out", async (string? returnUrl, HttpContext context) =>
-{
-    context.Response.Cookies.Delete("username");
-    context.Response.Cookies.Delete("isAuth");
-    if (context.User.Identity.IsAuthenticated)
-    {
-        await context.SignOutAsync("Cookies");
-        return Results.Redirect(returnUrl??"/");
-    }
-    else
-    {
-        return Results.Redirect(returnUrl??"/");
-    }
-});
-app.MapGet("/info", async (context) =>
-{
-    string name = context.Request.Cookies["username"];
-    await context.Response.WriteAsJsonAsync(name);
 });
 
 app.Run();
