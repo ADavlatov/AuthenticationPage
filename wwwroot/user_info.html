@@ -3,38 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Home Page</title>
-    <style>
-        *{
-            margin: 0 auto;
-            box-sizing: border-box;
-            display: grid;
-            font-family: sans-serif;
-        }
-        head{
-            display: none;
-        }
-        script{
-            display: none;
-        }
-        button{
-            border: 2px solid #b6b6b6;
-            color: inherit;
-            background-color: transparent;
-            padding: 10px 30px;
-            margin: 10px;
-        }
-        button:hover{
-            background-color: #9f9f9f;
-        }
-        .user_info{
-            margin-top: 20%;
-            border: 2px solid #b8b8b8;
-            padding: 20px 40px;
-        }
-        p{
-           margin-bottom: 10px; 
-        }
-    </style>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/script.js"></script>
 </head>
 <body>
 <div class="user_info">
@@ -48,17 +18,4 @@
     </form>
 </div>
 </body>
-<script>
-    async function getUser() {
-        const response = await fetch("/userinfo", {
-            method: "GET",
-            headers: { "Accept": "application/json" }
-        });
-        if (response.ok === true) {
-            const info = await response.json();
-            document.getElementById("user_login").innerHTML = `Ваш логин: ${info.toString()}`;
-        }
-    }
-    getUser();
-</script>
 </html>

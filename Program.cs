@@ -10,12 +10,15 @@ List<User> users = new List<User>
 
 var builder = WebApplication.CreateBuilder(args);
 
+DefaultFilesOptions options = new DefaultFilesOptions();
+options.DefaultFileNames.Add("wwwroot");
+
 builder.Services.AddAuthentication("Cookies").AddCookie(options => options.LoginPath = "/");
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-app.UseDefaultFiles();
+app.UseDefaultFiles(options);
 app.UseStaticFiles();
 
 app.UseAuthentication();

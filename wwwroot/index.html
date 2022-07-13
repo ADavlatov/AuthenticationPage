@@ -2,51 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Home Page</title>
-    <style>
-        *{
-            margin: 0 auto;
-            box-sizing: border-box;
-            display: grid;
-            font-family: sans-serif;
-        }
-        head{
-            display: none;
-        }
-        script{
-            display: none;
-        }
-        button{
-            border: 2px solid #b6b6b6;
-            color: inherit;
-            background-color: transparent;
-            padding: 10px 30px;
-            margin: 10px;
-        }
-        button:hover{
-            background-color: #9f9f9f;
-        }
-        .nav_block{
-            margin-top: 20%;
-            border: 2px solid #b8b8b8;
-            padding: 20px 40px;
-        }
-        .greeting{
-            display: none;
-        }
-        .log-in_btn{
-            display: unset;
-        }
-        .sign-in_btn{
-            display: unset;
-        }
-        .log-out_btn{
-            display: none;
-        }
-        .info_btn{
-            display: none;
-        }
-    </style>
+    <title>Authentication Page</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/script.js"></script>
 </head>
 <body>
     <div class="nav_block">
@@ -73,31 +31,4 @@
         </form>
     </div>
 </body>
-<script>
-    async function getUser() {
-        const isAuth = await fetch("/authinfo", {
-            method: "GET",
-            headers: { "Accept": "application/json" }
-        });
-        if (isAuth.ok === true) {
-            const resp = await isAuth.json();
-            if (resp === "auth"){
-                document.getElementById("log-inButton").style.display = "none";
-                document.getElementById("sign-inButton").style.display = "none";
-                document.getElementById("log-outButton").style.display = "unset";
-                document.getElementById("infoButton").style.display = "unset";
-            }
-        }
-        const greeting = await fetch("/userinfo", {
-            method: "GET",
-            headers: { "Accept": "application/json" }
-        });
-        if (greeting.ok === true) {
-            const name = await greeting.json();
-            document.getElementById("greeting").innerHTML = `Добро пожаловать: ${name.toString()}`;
-            document.getElementById("greeting").style.display = "unset";
-        }
-    }
-    getUser();
-</script>
 </html>
