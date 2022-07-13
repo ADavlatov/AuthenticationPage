@@ -22,11 +22,13 @@ app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 
+//отправка имени пользовавтеля на страницу информации о пользователе
 app.Map("/userinfo", async (context) =>
 {
     string? name = context.Request.Cookies["username"];
     await context.Response.WriteAsJsonAsync(name);
 });
+//отправка статуса пользователя
 app.Map("/authinfo", async (context) =>
 {
     if (context.User.Identity != null && context.User.Identity.IsAuthenticated)
@@ -35,26 +37,31 @@ app.Map("/authinfo", async (context) =>
         await context.Response.WriteAsJsonAsync(isAuth);
     }
 });
+//отправка страницы входа
 app.Map("/log-in", async (context) =>
 {
     context.Response.ContentType = "text/html; charset=utf-8";
     await context.Response.SendFileAsync("wwwroot/login_form.html");
 });
+//отправка страницы регистрации
 app.Map("/sign-in", async (context) =>
 {
     context.Response.ContentType = "text/html; charset=utf-8";
     await context.Response.SendFileAsync("wwwroot/signin_form.html");
 });
+//отправка страницы информации о пользователе
 app.Map("/info", async (context) =>
 {
     context.Response.ContentType = "text/html; charset=utf-8";
     await context.Response.SendFileAsync("wwwroot/user_info.html");
 });
+//отправка страницы смены пароля
 app.Map("/change-password", async (context) =>
 {
     context.Response.ContentType = "text/html; charset=utf-8";
     await context.Response.SendFileAsync("wwwroot/change_password.html");
 });
+//выход из аккаунта
 app.Map("/log-out", async (string? returnUrl, HttpContext context) =>
 {
     context.Response.Cookies.Delete("username");
@@ -69,8 +76,10 @@ app.Map("/log-out", async (string? returnUrl, HttpContext context) =>
         return Results.Redirect(returnUrl??"/");
     }
 });
+//вход в аккаунт
 app.MapPost("/log-in", async (string? returnUrl, ApplicationContext db, HttpContext context) =>
 {
+    //получение данных из формы
     var form = context.Request.Form;
     if (!form.ContainsKey("login") || !form.ContainsKey("password"))
         return Results.BadRequest("Логин или пароль не установлены");
@@ -80,14 +89,17 @@ app.MapPost("/log-in", async (string? returnUrl, ApplicationContext db, HttpCont
 
     password = GetHash(password);
 
+    //сопоставление с базой данных
     User? user = db.Users.FirstOrDefault(user => user.Login == login & user.Password == password);
     if (user == null)
         return Results.BadRequest("Вы ввели неверный логин или пароль");
 
+    //создание куков и вход в аккаунт
     var claims = new List<Claim> {new Claim(ClaimTypes.Name, user.Login, user.Password)};
     ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, "Cookies");
     await context.SignInAsync("Cookies", new ClaimsPrincipal(claimsIdentity));
     
+    //создание куков с логином и статусом
     if (context.User.Identity != null && !(context.User.Identity.IsAuthenticated))
     {
         context.Response.Cookies.Append("username", login);
@@ -96,13 +108,16 @@ app.MapPost("/log-in", async (string? returnUrl, ApplicationContext db, HttpCont
     
     return Results.Redirect(returnUrl??"/");
 });
+//регистрация аккаунта
 app.MapPost("/sign-in", (string? returnUrl, ApplicationContext db, HttpContext context) =>
 {
+    //получение данных с формы
     var form = context.Request.Form;
     
     string login = form["login"]!;
     string password = form["password"]!;
 
+    //проверка имеется ли пользователь с таким логином в базе данных
     foreach (var user in db.Users)
     {
         if (user.Login == login)
@@ -111,13 +126,16 @@ app.MapPost("/sign-in", (string? returnUrl, ApplicationContext db, HttpContext c
         }
     }
     
+    //добавление нового пользователя в базу данных
     db.Users.Add(new User{Login = login, Password = GetHash(password)});
     db.SaveChanges();
 
     return Results.Redirect(returnUrl??"/");
 });
+//смена пароля
 app.MapPost("/change", (string? returnUrl, ApplicationContext db, HttpContext context) =>
 {
+    //получение данных с формы
     var form = context.Request.Form;
 
     string login = context.Request.Cookies["username"]!;
@@ -126,10 +144,12 @@ app.MapPost("/change", (string? returnUrl, ApplicationContext db, HttpContext co
 
     oldPassword = GetHash(oldPassword);
 
+    //сопоставление с базой данных
     User? user = db.Users.FirstOrDefault(user => user.Login == login && user.Password == oldPassword);
     if (user == null)
         return Results.BadRequest("Неверный пароль");
 
+    //изменение пароля пользователя
     user.Password = GetHash(newPassword);
     db.SaveChanges();
     
@@ -138,6 +158,7 @@ app.MapPost("/change", (string? returnUrl, ApplicationContext db, HttpContext co
 
 app.Run();
 
+//метод хеширования пароля
 string GetHash(string password)
 {
     using (var hashAlg = MD5.Create())
