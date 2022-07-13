@@ -1,12 +1,8 @@
 using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 using AuthenticationPage;
 using Microsoft.AspNetCore.Authentication;
-
-List<User> users = new List<User>
-{
-    new User("Qwerty11",  "123456"),
-    new User("Qwerty12", "12345678")
-};
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +11,8 @@ options.DefaultFileNames.Add("wwwroot");
 
 builder.Services.AddAuthentication("Cookies").AddCookie(options => options.LoginPath = "/");
 builder.Services.AddAuthorization();
+
+builder.Services.AddDbContext<ApplicationContext>();
 
 var app = builder.Build();
 
@@ -71,18 +69,20 @@ app.Map("/log-out", async (string? returnUrl, HttpContext context) =>
         return Results.Redirect(returnUrl??"/");
     }
 });
-app.MapPost("/log-in", async (string? returnUrl, HttpContext context) =>
+app.MapPost("/log-in", async (string? returnUrl, ApplicationContext db, HttpContext context) =>
 {
     var form = context.Request.Form;
     if (!form.ContainsKey("login") || !form.ContainsKey("password"))
         return Results.BadRequest("Логин или пароль не установлены");
-    
+
     string login = form["login"]!;
     string password = form["password"]!;
 
-    User? user = users.FirstOrDefault(user => user.Login == login && user.Password == password);
+    password = GetHash(password);
+
+    User? user = db.Users.FirstOrDefault(user => user.Login == login & user.Password == password);
     if (user == null)
-        return Results.Unauthorized();
+        return Results.BadRequest("Вы ввели неверный логин или пароль");
 
     var claims = new List<Claim> {new Claim(ClaimTypes.Name, user.Login, user.Password)};
     ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, "Cookies");
@@ -96,26 +96,27 @@ app.MapPost("/log-in", async (string? returnUrl, HttpContext context) =>
     
     return Results.Redirect(returnUrl??"/");
 });
-app.MapPost("/sign-in", (string? returnUrl, HttpContext context) =>
+app.MapPost("/sign-in", (string? returnUrl, ApplicationContext db, HttpContext context) =>
 {
     var form = context.Request.Form;
     
     string login = form["login"]!;
     string password = form["password"]!;
 
-    for (int i = 0; i < users.Count; i++)
+    foreach (var user in db.Users)
     {
-        if (users[i].Login == login)
+        if (user.Login == login)
         {
             return Results.BadRequest("Такой пользователь уже существует");
         }
     }
     
-    users.Add(new User(login, password));
+    db.Users.Add(new User{Login = login, Password = GetHash(password)});
+    db.SaveChanges();
 
     return Results.Redirect(returnUrl??"/");
 });
-app.MapPost("/change", (string? returnUrl, HttpContext context) =>
+app.MapPost("/change", (string? returnUrl, ApplicationContext db, HttpContext context) =>
 {
     var form = context.Request.Form;
 
@@ -123,13 +124,30 @@ app.MapPost("/change", (string? returnUrl, HttpContext context) =>
     string oldPassword = form["oldPassword"]!;
     string newPassword = form["newPassword"]!;
 
-    User? user = users.FirstOrDefault(user => user.Login == login && user.Password == oldPassword);
+    oldPassword = GetHash(oldPassword);
+
+    User? user = db.Users.FirstOrDefault(user => user.Login == login && user.Password == oldPassword);
     if (user == null)
         return Results.BadRequest("Неверный пароль");
 
-    user.Password = newPassword;
+    user.Password = GetHash(newPassword);
+    db.SaveChanges();
     
     return Results.Redirect(returnUrl??"/");
 });
 
 app.Run();
+
+string GetHash(string password)
+{
+    using (var hashAlg = MD5.Create())
+    {
+        byte[] hash = hashAlg.ComputeHash(Encoding.UTF8.GetBytes(password));
+        var builder = new StringBuilder(hash.Length*2);
+        for (int i = 0; i < hash.Length; i++)
+        {
+            builder.Append(hash[i].ToString("X2"));
+        }
+        return builder.ToString();
+    }   
+}

@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthenticationPage;
@@ -10,6 +9,10 @@ public class ApplicationContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlite("Data SourceFilter=Authentication.db");
+        optionsBuilder.UseSqlite("Data Source=Authentication.db");
+    }
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<User>().HasKey(u => u.Id);
     }
 }
